@@ -1,0 +1,1722 @@
+/* ==========================================================================
+   Product Review Analyzer — Modern Academic NLP Stylesheet
+   Focus: GLiNER Sequence Labelling & Aspect-Level Sentiment Analysis
+   ========================================================================== */
+
+:root {
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-card-subtle: #f1f5f9;
+    --border-color: #e2e8f0;
+    --border-dark: #cbd5e1;
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-light: #94a3b8;
+
+    /* Theme Accents */
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+    --primary-border: #bfdbfe;
+
+    /* Entity Tag Color Palette */
+    --c-brand: #7c3aed;
+    --bg-brand: #f5f3ff;
+    --b-brand: #ddd6fe;
+
+    --c-product: #0891b2;
+    --bg-product: #ecfeff;
+    --b-product: #a5f3fc;
+
+    --c-feature: #2563eb;
+    --bg-feature: #eff6ff;
+    --b-feature: #bfdbfe;
+
+    --c-issue: #dc2626;
+    --bg-issue: #fef2f2;
+    --b-issue: #fecaca;
+
+    --c-opinion: #059669;
+    --bg-opinion: #ecfdf5;
+    --b-opinion: #a7f3d0;
+
+    --c-outside: #64748b;
+    --bg-outside: #f8fafc;
+    --b-outside: #e2e8f0;
+
+    /* Sentiment Colors */
+    --sentiment-pos: #10b981;
+    --sentiment-pos-bg: #ecfdf5;
+    --sentiment-neg: #ef4444;
+    --sentiment-neg-bg: #fef2f2;
+    --sentiment-neu: #64748b;
+    --sentiment-neu-bg: #f1f5f9;
+    --sentiment-mix: #f59e0b;
+    --sentiment-mix-bg: #fffbeb;
+
+    /* Shadows & Radii */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-full: 9999px;
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+/* Base Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   1. HEADER & PIPELINE BAR
+   ========================================================================== */
+
+.nlp-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #ffffff;
+    border-bottom: 1px solid #334155;
+    box-shadow: var(--shadow-md);
+}
+
+.header-main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.header-branding {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.header-badge-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.academic-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #38bdf8;
+    margin-bottom: 0.2rem;
+}
+
+.header-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.header-subtitle {
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    margin-top: 0.2rem;
+}
+
+.system-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.8rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 8px #10b981;
+}
+
+.status-label {
+    color: #e2e8f0;
+    font-weight: 500;
+}
+
+.model-badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+/* Academic Pipeline Workflow Bar */
+.pipeline-bar {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0.6rem 2rem;
+    background: rgba(15, 23, 42, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    overflow-x: auto;
+}
+
+.pipeline-step {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.76rem;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.pipeline-step.active {
+    color: #e2e8f0;
+}
+
+.pipeline-step.highlight {
+    color: #38bdf8;
+    font-weight: 600;
+}
+
+.step-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #334155;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.pipeline-step.highlight .step-num {
+    background: #0284c7;
+    box-shadow: 0 0 6px #0284c7;
+}
+
+.pipeline-arrow {
+    color: #475569;
+    font-size: 0.7rem;
+}
+
+/* ==========================================================================
+   APP LAYOUT (SIDEBAR + MAIN DASHBOARD)
+   ========================================================================== */
+
+.app-layout {
+    max-width: 1600px;
+    margin: 1.5rem auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* ==========================================================================
+   2. SIDEBAR: PRODUCT SELECTION
+   ========================================================================== */
+
+.product-sidebar {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.sidebar-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+}
+
+.sidebar-title-row h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.sidebar-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+}
+
+/* Search Box */
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-wrapper input {
+    width: 100%;
+    padding: 0.55rem 2rem 0.55rem 2.2rem;
+    font-size: 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.search-wrapper input:focus {
+    border-color: var(--primary);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 0.6rem;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+/* Category Tabs */
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.cat-tab {
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.3rem 0.65rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.cat-tab:hover {
+    border-color: var(--text-muted);
+    color: var(--text-primary);
+}
+
+.cat-tab.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+
+/* Products Container List */
+.products-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.product-item-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.product-item-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.product-item-card.selected {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.product-item-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+    padding: 2px;
+    overflow: hidden;
+}
+
+.sidebar-item-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.product-real-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+}
+
+.product-item-card.selected .product-item-thumb {
+    background-color: #ffffff;
+    border-color: var(--primary-border);
+}
+
+.product-item-info {
+    overflow: hidden;
+    flex: 1;
+}
+
+.product-item-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-item-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.15rem;
+}
+
+.product-item-meta .asin-tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+    background: #e2e8f0;
+    padding: 0.05rem 0.35rem;
+    border-radius: 3px;
+}
+
+.product-item-rating {
+    font-size: 0.75rem;
+    color: #f59e0b;
+    margin-top: 0.15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.product-item-reviews-count {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+}
+
+/* ==========================================================================
+   MAIN DASHBOARD CARDS & SECTIONS
+   ========================================================================== */
+
+.main-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.card-section {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 1.25rem 1.5rem;
+}
+
+.section-header-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.section-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.section-caption {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+/* ==========================================================================
+   3. PRODUCT HERO / INFORMATION CARD
+   ========================================================================== */
+
+.product-hero-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 140px 1fr 240px;
+    gap: 1.5rem;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.product-visual {
+    width: 140px;
+    height: 140px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    flex-shrink: 0;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.product-metadata {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.product-brand-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--c-brand);
+    background-color: var(--bg-brand);
+    border: 1px solid var(--b-brand);
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--radius-full);
+    display: inline-block;
+    align-self: flex-start;
+}
+
+.product-name {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.25;
+}
+
+.product-id-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.2rem 0;
+}
+
+.id-badge {
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    background-color: var(--bg-card-subtle);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.id-badge code {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.product-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.stars-outer {
+    color: #f59e0b;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+}
+
+.rating-num {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.rating-divider {
+    color: var(--text-muted);
+}
+
+.review-count {
+    color: var(--text-muted);
+}
+
+.product-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin-top: 0.2rem;
+}
+
+/* Overall Sentiment Quick Summary Widget */
+.sentiment-summary-widget {
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.widget-subtitle {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.widget-sentiment-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.25rem 0;
+}
+
+.widget-face {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    background-color: #e2e8f0;
+    color: #334155;
+    transition: all 0.2s ease;
+}
+
+.widget-face.positive {
+    background-color: var(--sentiment-pos-bg);
+    color: var(--sentiment-pos);
+    border: 2px solid var(--sentiment-pos);
+}
+
+.widget-face.negative {
+    background-color: var(--sentiment-neg-bg);
+    color: var(--sentiment-neg);
+    border: 2px solid var(--sentiment-neg);
+}
+
+.widget-face.neutral {
+    background-color: var(--sentiment-neu-bg);
+    color: var(--sentiment-neu);
+    border: 2px solid var(--sentiment-neu);
+}
+
+.widget-face.mixed {
+    background-color: var(--sentiment-mix-bg);
+    color: var(--sentiment-mix);
+    border: 2px solid var(--sentiment-mix);
+}
+
+.widget-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: left;
+    color: var(--text-primary);
+}
+
+.widget-score {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: left;
+}
+
+.widget-breakdown {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+/* ==========================================================================
+   4. REVIEW SELECTION & CUSTOM INPUT
+   ========================================================================== */
+
+.review-control-panel {
+    padding: 1.25rem 1.5rem;
+}
+
+.panel-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.product-reviews-column, .custom-review-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-dropdown-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.modern-select {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: #ffffff;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+/* Reviews Scroll List */
+.reviews-scroll-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    max-height: 270px;
+    overflow-y: auto;
+    padding-right: 0.4rem;
+}
+
+.review-card-item {
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.review-card-item:hover {
+    border-color: var(--primary);
+    background-color: #ffffff;
+    box-shadow: var(--shadow-sm);
+}
+
+.review-card-item.active {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+
+.review-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.review-card-stars {
+    color: #f59e0b;
+    font-size: 0.85rem;
+}
+
+.review-card-author {
+    color: var(--text-muted);
+}
+
+.review-card-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.review-card-badge.positive {
+    background-color: var(--sentiment-pos-bg);
+    color: var(--sentiment-pos);
+}
+
+.review-card-badge.negative {
+    background-color: var(--sentiment-neg-bg);
+    color: var(--sentiment-neg);
+}
+
+.review-card-badge.mixed {
+    background-color: var(--sentiment-mix-bg);
+    color: var(--sentiment-mix);
+}
+
+.review-card-text {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Custom Review Input Column */
+.text-action-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.text-action-btn:hover {
+    text-decoration: underline;
+}
+
+.input-container {
+    margin-bottom: 0.75rem;
+    flex: 1;
+}
+
+.modern-textarea {
+    width: 100%;
+    height: 185px;
+    padding: 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: #ffffff;
+    color: var(--text-primary);
+    resize: none;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.modern-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.analyze-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.65rem 1.25rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.status-feedback {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   LOADING & ERROR STATES
+   ========================================================================== */
+
+.analysis-results-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.analysis-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 50;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-box {
+    text-align: center;
+    padding: 2rem;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 360px;
+}
+
+.nlp-spinner {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 1rem;
+    border: 3px solid #e2e8f0;
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.spinner-subtext {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+}
+
+.error-banner {
+    background-color: var(--sentiment-neg-bg);
+    border: 1px solid var(--b-issue);
+    color: var(--c-issue);
+    padding: 0.9rem 1.25rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   7. REVIEW HIGHLIGHTING (ANNOTATED REVIEW)
+   ========================================================================== */
+
+.entity-legend-inline {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.legend-pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+}
+
+.legend-pill.brand { background: var(--bg-brand); color: var(--c-brand); border: 1px solid var(--b-brand); }
+.legend-pill.product { background: var(--bg-product); color: var(--c-product); border: 1px solid var(--b-product); }
+.legend-pill.feature { background: var(--bg-feature); color: var(--c-feature); border: 1px solid var(--b-feature); }
+.legend-pill.issue { background: var(--bg-issue); color: var(--c-issue); border: 1px solid var(--b-issue); }
+.legend-pill.opinion { background: var(--bg-opinion); color: var(--c-opinion); border: 1px solid var(--b-opinion); }
+
+.annotated-review-box {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--text-primary);
+    min-height: 80px;
+}
+
+.annotated-review-box .placeholder-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* Inline highlighted entity marks */
+.entity-highlight {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    margin: 0 0.15rem;
+    border-radius: 4px;
+    font-weight: 500;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.entity-highlight .tag-sub {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-left: 0.35rem;
+    padding: 0.05rem 0.3rem;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+.entity-highlight.brand { background: var(--bg-brand); color: var(--c-brand); border: 1px solid var(--b-brand); }
+.entity-highlight.brand .tag-sub { background: var(--c-brand); color: #fff; }
+
+.entity-highlight.product { background: var(--bg-product); color: var(--c-product); border: 1px solid var(--b-product); }
+.entity-highlight.product .tag-sub { background: var(--c-product); color: #fff; }
+
+.entity-highlight.feature { background: var(--bg-feature); color: var(--c-feature); border: 1px solid var(--b-feature); }
+.entity-highlight.feature .tag-sub { background: var(--c-feature); color: #fff; }
+
+.entity-highlight.issue { background: var(--bg-issue); color: var(--c-issue); border: 1px solid var(--b-issue); }
+.entity-highlight.issue .tag-sub { background: var(--c-issue); color: #fff; }
+
+.entity-highlight.opinion { background: var(--bg-opinion); color: var(--c-opinion); border: 1px solid var(--b-opinion); }
+.entity-highlight.opinion .tag-sub { background: var(--c-opinion); color: #fff; }
+
+/* ==========================================================================
+   5. SEQUENCE LABELLING SECTION (ACADEMIC FOCUS)
+   ========================================================================== */
+
+.academic-focus-card {
+    border-color: #cbd5e1;
+    box-shadow: var(--shadow-md);
+    background: #ffffff;
+    position: relative;
+}
+
+.academic-focus-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.academic-badge-pill {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #0369a1;
+    background: #e0f2fe;
+    border: 1px solid #bae6fd;
+    padding: 0.15rem 0.55rem;
+    border-radius: var(--radius-full);
+    margin-bottom: 0.35rem;
+}
+
+.view-toggle-group {
+    display: flex;
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.2rem;
+    gap: 0.2rem;
+}
+
+.toggle-btn {
+    border: none;
+    background: none;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.15s ease;
+}
+
+.toggle-btn:hover {
+    color: var(--text-primary);
+}
+
+.toggle-btn.active {
+    background-color: #ffffff;
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
+}
+
+/* Sequence Labelling Metrics */
+.bio-metrics-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.bio-stat {
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.bio-stat-val {
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+}
+
+.bio-stat-val.text-brand { color: var(--primary); }
+.bio-stat-val.text-muted { color: var(--text-muted); }
+.bio-stat-val.text-accent { color: var(--c-brand); }
+
+.bio-stat-lbl {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-top: 0.1rem;
+}
+
+/* BIO Table View */
+.bio-table-wrapper {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.bio-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.bio-table th {
+    background-color: #f8fafc;
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.bio-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.bio-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+.token-cell {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.empty-table-cell {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2.5rem 1rem !important;
+    font-style: italic;
+}
+
+/* Distinct BIO Badges */
+.bio-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+
+.bio-badge.b-brand, .bio-badge.i-brand { background: var(--bg-brand); color: var(--c-brand); border-color: var(--b-brand); }
+.bio-badge.b-product, .bio-badge.i-product { background: var(--bg-product); color: var(--c-product); border-color: var(--b-product); }
+.bio-badge.b-feature, .bio-badge.i-feature { background: var(--bg-feature); color: var(--c-feature); border-color: var(--b-feature); }
+.bio-badge.b-issue, .bio-badge.i-issue { background: var(--bg-issue); color: var(--c-issue); border-color: var(--b-issue); }
+.bio-badge.b-opinion, .bio-badge.i-opinion { background: var(--bg-opinion); color: var(--c-opinion); border-color: var(--b-opinion); }
+.bio-badge.o-tag { background: var(--bg-outside); color: var(--c-outside); border-color: var(--b-outside); }
+
+/* Token Chips View */
+.bio-chips-flexbox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.token-chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.55rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.15s ease;
+}
+
+.token-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+}
+
+.token-chip-text {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.token-chip-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+}
+
+/* BIO Schema Legend */
+.bio-tag-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.75rem;
+}
+
+.legend-title {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.bio-pill {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    border: 1px solid transparent;
+}
+
+.bio-pill.b-feature, .bio-pill.i-feature { background: var(--bg-feature); color: var(--c-feature); border-color: var(--b-feature); }
+.bio-pill.b-opinion, .bio-pill.i-opinion { background: var(--bg-opinion); color: var(--c-opinion); border-color: var(--b-opinion); }
+.bio-pill.b-issue, .bio-pill.i-issue { background: var(--bg-issue); color: var(--c-issue); border-color: var(--b-issue); }
+.bio-pill.b-brand { background: var(--bg-brand); color: var(--c-brand); border-color: var(--b-brand); }
+.bio-pill.b-product { background: var(--bg-product); color: var(--c-product); border-color: var(--b-product); }
+.bio-pill.o-tag { background: var(--bg-outside); color: var(--c-outside); border-color: var(--b-outside); }
+
+/* ==========================================================================
+   6. ENTITY EXTRACTION SECTION
+   ========================================================================== */
+
+.entity-groups-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+}
+
+.entity-group-card {
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.entity-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.group-name {
+    flex: 1;
+}
+
+.group-count {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    padding: 0.1rem 0.45rem;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.brand-group { border-top: 3px solid var(--c-brand); }
+.brand-group .group-name { color: var(--c-brand); }
+
+.product-group { border-top: 3px solid var(--c-product); }
+.product-group .group-name { color: var(--c-product); }
+
+.feature-group { border-top: 3px solid var(--c-feature); }
+.feature-group .group-name { color: var(--c-feature); }
+
+.issue-group { border-top: 3px solid var(--c-issue); }
+.issue-group .group-name { color: var(--c-issue); }
+
+.opinion-group { border-top: 3px solid var(--c-opinion); }
+.opinion-group .group-name { color: var(--c-opinion); }
+
+.entity-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    min-height: 48px;
+    align-content: flex-start;
+}
+
+.entity-chip {
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.entity-chip .score-tag {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+.no-entity-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+    align-self: center;
+    margin: auto 0;
+}
+
+/* ==========================================================================
+   8 & 9. ASPECT-OPINION PAIRS & ASPECT SENTIMENT
+   ========================================================================== */
+
+.two-column-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.aspect-pairs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-height: 100px;
+}
+
+.aspect-pair-item {
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.aspect-linkage {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.aspect-tag-box {
+    background-color: var(--bg-feature);
+    border: 1px solid var(--b-feature);
+    color: var(--c-feature);
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+}
+
+.pair-arrow {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.opinion-tag-box {
+    background-color: var(--bg-opinion);
+    border: 1px solid var(--b-opinion);
+    color: var(--c-opinion);
+    font-weight: 500;
+    font-size: 0.82rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+}
+
+.aspect-sentiment-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+}
+
+.aspect-sentiment-badge.positive {
+    background-color: var(--sentiment-pos-bg);
+    color: var(--sentiment-pos);
+    border: 1px solid #a7f3d0;
+}
+
+.aspect-sentiment-badge.negative {
+    background-color: var(--sentiment-neg-bg);
+    color: var(--sentiment-neg);
+    border: 1px solid #fecaca;
+}
+
+.aspect-sentiment-badge.neutral {
+    background-color: var(--sentiment-neu-bg);
+    color: var(--sentiment-neu);
+    border: 1px solid #cbd5e1;
+}
+
+/* Aspect-Level Sentiment List */
+.aspect-sentiment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-height: 100px;
+}
+
+.aspect-sentiment-card {
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.aspect-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.aspect-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* ==========================================================================
+   10. OVERALL RESULT & EXPLANATION
+   ========================================================================== */
+
+.overall-analysis-card {
+    border-color: #cbd5e1;
+}
+
+.overall-synthesis-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+.overall-sentiment-display {
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sentiment-indicator-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.overall-sentiment-display.positive .sentiment-indicator-icon {
+    background: var(--sentiment-pos-bg);
+    color: var(--sentiment-pos);
+    border: 2px solid var(--sentiment-pos);
+}
+
+.overall-sentiment-display.negative .sentiment-indicator-icon {
+    background: var(--sentiment-neg-bg);
+    color: var(--sentiment-neg);
+    border: 2px solid var(--sentiment-neg);
+}
+
+.overall-sentiment-display.neutral .sentiment-indicator-icon {
+    background: var(--sentiment-neu-bg);
+    color: var(--sentiment-neu);
+    border: 2px solid var(--sentiment-neu);
+}
+
+.overall-sentiment-display.mixed .sentiment-indicator-icon {
+    background: var(--sentiment-mix-bg);
+    color: var(--sentiment-mix);
+    border: 2px solid var(--sentiment-mix);
+}
+
+.sentiment-status-label {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.sentiment-confidence-score {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.nlp-explanation-box {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.explanation-title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+}
+
+.explanation-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+
+.app-footer {
+    border-top: 1px solid var(--border-color);
+    background-color: #ffffff;
+    margin-top: 2rem;
+    padding: 1.25rem 2rem;
+}
+
+.footer-content {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.footer-content code {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    background-color: var(--bg-card-subtle);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (MEDIA QUERIES)
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+    .product-hero-card {
+        grid-template-columns: 120px 1fr;
+    }
+    .sentiment-summary-widget {
+        grid-column: span 2;
+    }
+    .entity-groups-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .app-layout {
+        grid-template-columns: 1fr;
+    }
+    .product-sidebar {
+        position: static;
+        max-height: none;
+    }
+    .panel-columns {
+        grid-template-columns: 1fr;
+    }
+    .two-column-grid {
+        grid-template-columns: 1fr;
+    }
+    .overall-synthesis-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .product-hero-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .product-visual {
+        margin: 0 auto;
+    }
+    .product-brand-tag {
+        align-self: center;
+    }
+    .product-id-row {
+        justify-content: center;
+    }
+    .product-rating-row {
+        justify-content: center;
+    }
+    .bio-metrics-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .entity-groups-grid {
+        grid-template-columns: 1fr;
+    }
+}

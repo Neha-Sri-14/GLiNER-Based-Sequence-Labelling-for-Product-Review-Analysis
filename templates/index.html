@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Review Analyzer — GLiNER Sequence Labelling & Aspect Sentiment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- 1. HEADER -->
+    <header class="nlp-header">
+        <div class="header-main">
+            <div class="header-branding">
+                <div class="header-badge-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        <circle cx="12" cy="12" r="4"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="academic-tag">NLP Academic Demonstration System</div>
+                    <h1 class="header-title">Product Review Analyzer</h1>
+                    <p class="header-subtitle">GLiNER-Based Sequence Labelling and Aspect-Level Sentiment Analysis</p>
+                </div>
+            </div>
+
+            <div class="system-status-indicator">
+                <span class="status-dot"></span>
+                <span class="status-label">Backend Connected & Ready</span>
+                <span class="model-badge">GLiNER Zero-Shot / Span-NER</span>
+            </div>
+        </div>
+
+        <!-- Academic Pipeline Workflow Steps -->
+        <div class="pipeline-bar">
+            <div class="pipeline-step active">
+                <span class="step-num">1</span>
+                <span class="step-text">Customer Review</span>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+            <div class="pipeline-step active">
+                <span class="step-num">2</span>
+                <span class="step-text">GLiNER Span Extraction</span>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+            <div class="pipeline-step active highlight">
+                <span class="step-num">3</span>
+                <span class="step-text">BIO Sequence Labelling</span>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+            <div class="pipeline-step active">
+                <span class="step-num">4</span>
+                <span class="step-text">Aspect-Opinion Pairing</span>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+            <div class="pipeline-step active">
+                <span class="step-num">5</span>
+                <span class="step-text">Sentiment Synthesis</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP LAYOUT -->
+    <main class="app-layout">
+
+        <!-- 2. SIDEBAR: PRODUCT SELECTION -->
+        <aside class="product-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title-row">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                    </svg>
+                    <h2>Select Product</h2>
+                </div>
+                <p class="sidebar-desc">Choose a catalog item to analyze its verified reviews</p>
+            </div>
+
+            <!-- Search box -->
+            <div class="search-wrapper">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input id="productSearch" type="text" placeholder="Search by name, brand, or ASIN..." autocomplete="off">
+                <button id="clearSearchBtn" class="clear-search-btn" title="Clear search" style="display:none;">&times;</button>
+            </div>
+
+            <!-- Category / Brand Filter Tabs -->
+            <div class="category-tabs" id="categoryTabs">
+                <button class="cat-tab active" data-category="All">All</button>
+                <button class="cat-tab" data-category="Samsung">Samsung</button>
+                <button class="cat-tab" data-category="Motorola">Motorola</button>
+                <button class="cat-tab" data-category="Nokia">Nokia</button>
+            </div>
+
+            <!-- Products List -->
+            <div id="productList" class="products-container" role="listbox" aria-label="Products">
+                <!-- Dynamically populated via JavaScript -->
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <section class="main-dashboard">
+
+            <!-- 3. PRODUCT INFORMATION CARD -->
+            <div class="product-hero-card" id="productInfoCard">
+                <div class="product-visual" id="productVisualContainer">
+                    <!-- Dynamic Product Image / SVG Illustration -->
+                </div>
+
+                <div class="product-metadata">
+                    <div class="product-brand-tag" id="productBrand">Sony</div>
+                    <h2 class="product-name" id="productName">Sony WH-1000XM5</h2>
+                    
+                    <div class="product-id-row">
+                        <span class="id-badge">
+                            <strong>ASIN:</strong> <code id="productAsin">B09XS7JWHH</code>
+                        </span>
+                        <span class="id-badge">
+                            <strong>Category:</strong> <span id="productCategory">Electronics</span>
+                        </span>
+                        <span class="id-badge">
+                            <strong>Type:</strong> <span id="productType">Wireless Headphones</span>
+                        </span>
+                    </div>
+
+                    <div class="product-rating-row">
+                        <div class="stars-outer" id="productStarRating">
+                            <!-- Star SVGs populated dynamically -->
+                        </div>
+                        <span class="rating-num" id="productRatingNum">4.6</span>
+                        <span class="rating-divider">/ 5.0</span>
+                        <span class="review-count" id="productReviewCount">(1,480 verified reviews)</span>
+                    </div>
+
+                    <p class="product-description" id="productDescription">
+                        Industry-leading noise cancellation, exceptional sound quality with Auto NC Optimizer, 30-hour battery life, and crystal-clear hands-free calling.
+                    </p>
+                </div>
+
+                <!-- Overall Sentiment Quick Summary Card -->
+                <div class="sentiment-summary-widget" id="sentimentSummaryWidget">
+                    <span class="widget-subtitle">Aggregate Review Sentiment</span>
+                    <div class="widget-sentiment-row">
+                        <div class="widget-face" id="widgetFace">☺</div>
+                        <div>
+                            <div class="widget-label" id="widgetSentimentLabel">Positive</div>
+                            <div class="widget-score" id="widgetSentimentScore">78% Confidence</div>
+                        </div>
+                    </div>
+                    <div class="widget-breakdown" id="widgetBreakdown">
+                        <span>Aspect-Level Analysis</span>
+                        <span>•</span>
+                        <span>GLiNER NLP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. REVIEW SELECTION & INPUT SECTION -->
+            <div class="card-section review-control-panel">
+                <div class="panel-columns">
+
+                    <!-- Left: Product's Verified Reviews -->
+                    <div class="product-reviews-column">
+                        <div class="section-header-compact">
+                            <div>
+                                <h3 class="section-title">Verified Customer Reviews</h3>
+                                <p class="section-caption">Select any review from this product to run live sequence labelling</p>
+                            </div>
+
+                            <div class="filter-dropdown-wrap">
+                                <label for="sentimentFilter" class="filter-label">Filter:</label>
+                                <select id="sentimentFilter" class="modern-select">
+                                    <option value="all">All Reviews</option>
+                                    <option value="positive">Positive</option>
+                                    <option value="negative">Negative</option>
+                                    <option value="mixed">Mixed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Review Cards Container for Current Product -->
+                        <div id="productReviewsContainer" class="reviews-scroll-list">
+                            <!-- Populated dynamically for selected product -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Custom Review Input / Active Review Text -->
+                    <div class="custom-review-column">
+                        <div class="section-header-compact">
+                            <div>
+                                <h3 class="section-title">Analyze Review</h3>
+                                <p class="section-caption">Active review or enter your own custom text for live NLP analysis</p>
+                            </div>
+                            <button id="clearReviewBtn" class="text-action-btn" title="Clear text">Clear</button>
+                        </div>
+
+                        <div class="input-container">
+                            <textarea id="reviewInput" 
+                                class="modern-textarea"
+                                rows="4" 
+                                placeholder="Enter or select a product review for GLiNER sequence labelling and aspect sentiment analysis..."></textarea>
+                        </div>
+
+                        <div class="analyze-action-bar">
+                            <button id="analyzeBtn" class="btn-primary analyze-submit-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                <span>Analyze with GLiNER</span>
+                            </button>
+
+                            <div id="statusMessage" class="status-feedback" role="status"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RESULTS AREA WITH LOADING OVERLAY -->
+            <div class="analysis-results-wrapper" id="analysisResultsWrapper">
+                
+                <!-- Loading State Overlay -->
+                <div id="loadingOverlay" class="analysis-loading-overlay" style="display: none;">
+                    <div class="spinner-box">
+                        <div class="nlp-spinner"></div>
+                        <div class="spinner-text">Analyzing Review with GLiNER...</div>
+                        <div class="spinner-subtext">Tokenizing text, predicting entity spans & extracting BIO labels</div>
+                    </div>
+                </div>
+
+                <!-- Error State Banner -->
+                <div id="errorBanner" class="error-banner" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span id="errorMessageText">An error occurred during analysis.</span>
+                </div>
+
+                <!-- 7. REVIEW HIGHLIGHTING (ANNOTATED REVIEW) -->
+                <div class="card-section">
+                    <div class="section-header-compact">
+                        <div>
+                            <h3 class="section-title">Annotated Review (Entity Span Highlighting)</h3>
+                            <p class="section-caption">Original review text with color-coded entity spans predicted by GLiNER</p>
+                        </div>
+                        <div class="entity-legend-inline">
+                            <span class="legend-pill brand">BRAND</span>
+                            <span class="legend-pill product">PRODUCT</span>
+                            <span class="legend-pill feature">FEATURE</span>
+                            <span class="legend-pill issue">ISSUE</span>
+                            <span class="legend-pill opinion">OPINION</span>
+                        </div>
+                    </div>
+
+                    <div id="annotatedReviewBox" class="annotated-review-box">
+                        <span class="placeholder-text">Select a product review above to display highlighted entities.</span>
+                    </div>
+                </div>
+
+                <!-- 5. SEQUENCE LABELLING SECTION (MOST IMPORTANT ACADEMIC COMPONENT) -->
+                <div class="card-section academic-focus-card">
+                    <div class="academic-focus-header">
+                        <div class="focus-title-group">
+                            <span class="academic-badge-pill">Core Academic Task</span>
+                            <h3 class="section-title">Sequence Labelling — Token-by-Token BIO Analysis</h3>
+                            <p class="section-caption">Every word token is mapped to its BIO tag (Begin, Inside, Outside) for fine-grained entity boundary detection.</p>
+                        </div>
+
+                        <!-- View Toggle: Table vs Chips -->
+                        <div class="view-toggle-group">
+                            <button id="viewTableBtn" class="toggle-btn active" title="Show Academic Table View">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+                                <span>Table View</span>
+                            </button>
+                            <button id="viewChipsBtn" class="toggle-btn" title="Show Interactive Token Chips">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                <span>Token Chips</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sequence Labelling Metrics Row -->
+                    <div class="bio-metrics-bar">
+                        <div class="bio-stat">
+                            <span class="bio-stat-val" id="statTotalTokens">0</span>
+                            <span class="bio-stat-lbl">Total Tokens</span>
+                        </div>
+                        <div class="bio-stat">
+                            <span class="bio-stat-val text-brand" id="statEntityTokens">0</span>
+                            <span class="bio-stat-lbl">Entity Tokens (B / I)</span>
+                        </div>
+                        <div class="bio-stat">
+                            <span class="bio-stat-val text-muted" id="statOutsideTokens">0</span>
+                            <span class="bio-stat-lbl">Outside Tokens (O)</span>
+                        </div>
+                        <div class="bio-stat">
+                            <span class="bio-stat-val text-accent" id="statEntitySpans">0</span>
+                            <span class="bio-stat-lbl">Extracted Spans</span>
+                        </div>
+                    </div>
+
+                    <!-- Table View -->
+                    <div id="bioTableView" class="bio-view-content">
+                        <div class="bio-table-wrapper">
+                            <table class="bio-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">#</th>
+                                        <th>Token</th>
+                                        <th>BIO Label</th>
+                                        <th>Entity Type</th>
+                                        <th>BIO Prefix</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bioTableBody">
+                                    <tr>
+                                        <td colspan="5" class="empty-table-cell">Analyze a review to populate token-by-token sequence labelling data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Token Chips View -->
+                    <div id="bioChipsView" class="bio-view-content" style="display: none;">
+                        <div id="bioChipsContainer" class="bio-chips-flexbox">
+                            <span class="placeholder-text">Tokens and BIO labels will appear here.</span>
+                        </div>
+                    </div>
+
+                    <!-- BIO Legend -->
+                    <div class="bio-tag-legend">
+                        <span class="legend-title">BIO Schema:</span>
+                        <span class="bio-pill b-feature">B-FEATURE (Begin)</span>
+                        <span class="bio-pill i-feature">I-FEATURE (Inside)</span>
+                        <span class="bio-pill b-opinion">B-OPINION</span>
+                        <span class="bio-pill i-opinion">I-OPINION</span>
+                        <span class="bio-pill b-issue">B-ISSUE</span>
+                        <span class="bio-pill i-issue">I-ISSUE</span>
+                        <span class="bio-pill b-brand">B-BRAND</span>
+                        <span class="bio-pill b-product">B-PRODUCT</span>
+                        <span class="bio-pill o-tag">O (Outside)</span>
+                    </div>
+                </div>
+
+                <!-- 6. ENTITY EXTRACTION SECTION -->
+                <div class="card-section">
+                    <div class="section-header-compact">
+                        <div>
+                            <h3 class="section-title">Extracted Entity Spans by Category</h3>
+                            <p class="section-caption">Categorized spans identified from GLiNER token predictions</p>
+                        </div>
+                    </div>
+
+                    <div class="entity-groups-grid" id="entityGroupsContainer">
+                        <!-- Group: BRAND -->
+                        <div class="entity-group-card brand-group">
+                            <div class="entity-group-header">
+                                <span class="group-icon">🏷️</span>
+                                <span class="group-name">BRAND</span>
+                                <span class="group-count" id="countBrand">0</span>
+                            </div>
+                            <div class="entity-tag-list" id="listBrand">
+                                <span class="no-entity-hint">None detected</span>
+                            </div>
+                        </div>
+
+                        <!-- Group: PRODUCT -->
+                        <div class="entity-group-card product-group">
+                            <div class="entity-group-header">
+                                <span class="group-icon">📦</span>
+                                <span class="group-name">PRODUCT</span>
+                                <span class="group-count" id="countProduct">0</span>
+                            </div>
+                            <div class="entity-tag-list" id="listProduct">
+                                <span class="no-entity-hint">None detected</span>
+                            </div>
+                        </div>
+
+                        <!-- Group: FEATURE -->
+                        <div class="entity-group-card feature-group">
+                            <div class="entity-group-header">
+                                <span class="group-icon">⚡</span>
+                                <span class="group-name">FEATURE</span>
+                                <span class="group-count" id="countFeature">0</span>
+                            </div>
+                            <div class="entity-tag-list" id="listFeature">
+                                <span class="no-entity-hint">None detected</span>
+                            </div>
+                        </div>
+
+                        <!-- Group: ISSUE -->
+                        <div class="entity-group-card issue-group">
+                            <div class="entity-group-header">
+                                <span class="group-icon">⚠️</span>
+                                <span class="group-name">ISSUE</span>
+                                <span class="group-count" id="countIssue">0</span>
+                            </div>
+                            <div class="entity-tag-list" id="listIssue">
+                                <span class="no-entity-hint">None detected</span>
+                            </div>
+                        </div>
+
+                        <!-- Group: OPINION -->
+                        <div class="entity-group-card opinion-group">
+                            <div class="entity-group-header">
+                                <span class="group-icon">💬</span>
+                                <span class="group-name">OPINION</span>
+                                <span class="group-count" id="countOpinion">0</span>
+                            </div>
+                            <div class="entity-tag-list" id="listOpinion">
+                                <span class="no-entity-hint">None detected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8 & 9. ASPECT-OPINION PAIRING & ASPECT SENTIMENT -->
+                <div class="two-column-grid">
+
+                    <!-- 8. Aspect-Opinion Analysis -->
+                    <div class="card-section">
+                        <div class="section-header-compact">
+                            <div>
+                                <h3 class="section-title">Aspect-Opinion Pairs</h3>
+                                <p class="section-caption">Syntactic & contextual pairing between aspects and opinions</p>
+                            </div>
+                        </div>
+
+                        <div id="aspectPairsContainer" class="aspect-pairs-container">
+                            <span class="placeholder-text">Aspect-opinion pairs will appear after analysis.</span>
+                        </div>
+                    </div>
+
+                    <!-- 9. Aspect Sentiment -->
+                    <div class="card-section">
+                        <div class="section-header-compact">
+                            <div>
+                                <h3 class="section-title">Aspect-Level Sentiment</h3>
+                                <p class="section-caption">Fine-grained sentiment polarity evaluated per aspect</p>
+                            </div>
+                        </div>
+
+                        <div id="aspectSentimentList" class="aspect-sentiment-list">
+                            <span class="placeholder-text">Aspect sentiment breakdown will appear here.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 10. OVERALL RESULT & EXPLANATION -->
+                <div class="card-section overall-analysis-card">
+                    <div class="section-header-compact">
+                        <div>
+                            <h3 class="section-title">Overall Sentiment & Academic Explanation</h3>
+                            <p class="section-caption">Aggregated sentiment synthesized from aspect polarities and review context</p>
+                        </div>
+                    </div>
+
+                    <div class="overall-synthesis-layout">
+                        <div class="overall-sentiment-display" id="overallSentimentCard">
+                            <div class="sentiment-indicator-icon" id="overallResultIcon">☺</div>
+                            <div class="sentiment-meta">
+                                <div class="sentiment-status-label" id="overallResultLabel">POSITIVE</div>
+                                <div class="sentiment-confidence-score" id="overallResultScore">Score: 0.85</div>
+                            </div>
+                        </div>
+
+                        <div class="nlp-explanation-box">
+                            <div class="explanation-title">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="16" x2="12" y2="12"/>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                </svg>
+                                <span>Model Rationale & Sentiment Synthesis</span>
+                            </div>
+                            <p class="explanation-text" id="explanationText">
+                                The sentiment explanation synthesized from backend aspect-level polarities will be displayed here.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- End analysis results wrapper -->
+
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+        <div class="footer-content">
+            <div>
+                <strong>Product Review Analyzer</strong> — College NLP Capstone Project
+            </div>
+            <div>
+                Built with <code>GLiNER</code> • <code>BIO Sequence Labelling</code> • <code>Aspect-Based Sentiment</code> • <code>Flask</code>
+            </div>
+        </div>
+    </footer>
+
+    <!-- App JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
